@@ -11,6 +11,11 @@ Clone using vcstool:
 vcs import < repositories.repos
 ```
 
+Pull all repositories:
+```
+vcs pull -n
+```
+
 ## Build docker
 
 Build docker:
