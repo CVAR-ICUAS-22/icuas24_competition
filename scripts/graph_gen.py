@@ -64,6 +64,31 @@ class IndoorFarm:
                 safety_distance=config['safety_distance']
             )
 
+    @property
+    def graph(self) -> list[tuple[float, float, float]]:
+        """graph: Returns a graph of the indoor farm."""
+        nodes: list[tuple[str, float, float, float]] = []
+        for row in range(self.row_count + 1):
+            for col in range(self.col_count + 1):
+                y = self.y_offset - self.row_spacing/2 + row * \
+                    (self.plant_bed_length + self.row_spacing)
+                x = self.x_offset + col * self.plant_bed_width + \
+                    (col-1/2) * self.col_spacing
+                x2 = self.x_offset + self.plant_bed_width/2 + col * \
+                    (self.plant_bed_width + self.col_spacing)
+
+                nodes.append(('r', x, y, 0))
+                if col == 0:
+                    x -= self.safety_distance
+                    nodes.append(('y', x, y, 0))
+                if col == self.col_count:
+                    x += self.safety_distance
+                    nodes.append(('y', x, y, 0))
+                if col >= self.col_count:
+                    continue
+                nodes.append(('g', x2, y, 0))
+        return nodes
+
 
 def draw_2d_indoor_farm(indoor_farm: IndoorFarm):
     """draw_indoor_farm: Draws a plot of the indoor farm."""
@@ -79,25 +104,8 @@ def draw_2d_indoor_farm(indoor_farm: IndoorFarm):
                 (x, y), indoor_farm.plant_bed_width, indoor_farm.plant_bed_length)
             ax.add_patch(rectangle)
 
-    for row in range(indoor_farm.row_count + 1):
-        for col in range(indoor_farm.col_count + 1):
-            y = indoor_farm.y_offset - indoor_farm.row_spacing/2 + row * \
-                (indoor_farm.plant_bed_length + indoor_farm.row_spacing)
-            x = col * indoor_farm.plant_bed_width + (indoor_farm.col_spacing/2) + \
-                (col-1) * indoor_farm.col_spacing + indoor_farm.x_offset
-            x2 = indoor_farm.x_offset + indoor_farm.plant_bed_width/2 + col * \
-                (indoor_farm.plant_bed_width + indoor_farm.col_spacing)
-
-            ax.scatter(x, y, color='r')
-            if col == 0:
-                x -= indoor_farm.safety_distance
-                ax.scatter(x, y, color='y')
-            if col == indoor_farm.col_count:
-                x += indoor_farm.safety_distance
-                ax.scatter(x, y, color='y')
-            if col >= indoor_farm.col_count:
-                continue
-            ax.scatter(x2, y, color='g')
+    for node in indoor_farm.graph:
+        ax.scatter(node[1], node[2], color=node[0])
     ax.set_xlim([0, 30])
     ax.set_ylim([0, 30])
     plt.show()
