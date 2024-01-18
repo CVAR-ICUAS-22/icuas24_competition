@@ -65,4 +65,4 @@ windows:
   - debug:
       layout: tiled
       panes:
-        - 
+        - roslaunch icuas24_competition graph_server.launch

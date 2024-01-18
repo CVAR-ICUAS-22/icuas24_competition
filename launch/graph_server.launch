@@ -1,0 +1,3 @@
+<launch>
+    <node pkg="icuas24_competition" type="graph_server.py" name="graph_server"/>
+</launch>
