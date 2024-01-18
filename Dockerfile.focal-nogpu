@@ -20,11 +20,10 @@ COPY . .
 RUN catkin build --limit-status-rate 0.2
 
 # Clone CVAR packages
-WORKDIR $HOME/cvar_ws/src
+WORKDIR $HOME/$CATKIN_WORKSPACE/src/cvar
 RUN git clone https://github.com/CVAR-ICUAS-22/icuas_msgs.git -b icuas24
 RUN git clone https://github.com/CVAR-ICUAS-22/icuas2022_speed_controller.git -b icuas24
 RUN git clone https://github.com/CVAR-ICUAS-22/icuas_mission_planner.git -b icuas24
 RUN git clone https://github.com/CVAR-ICUAS-22/icuas_path_planning.git -b icuas24
-RUN echo "source $HOME/cvar_ws/devel/setup.bash" >> ~/.bashrc
-RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && source $HOME/$CATKIN_WORKSPACE/devel/setup.bash && cd $HOME/cvar_ws && catkin build --limit-status-rate 0.2"
 WORKDIR $HOME/$CATKIN_WORKSPACE/src/icuas24_competition
+RUN catkin build --limit-status-rate 0.2
