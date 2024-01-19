@@ -4,6 +4,7 @@
 graph_gen.py: Generates a graph of the environment given a set of parameters.
 """
 
+from __future__ import annotations
 from dataclasses import dataclass
 from matplotlib import pyplot as plt
 from matplotlib.patches import Rectangle

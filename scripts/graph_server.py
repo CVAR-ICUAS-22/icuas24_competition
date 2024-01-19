@@ -2,7 +2,7 @@ import rospy
 from geometry_msgs.msg import Point
 from icuas_msgs.msg import Graph, Node
 from icuas_msgs.srv import GetGraph, GetGraphResponse
-# from indoor_farm import IndoorFarm
+from icuas24_competition.graph_gen import IndoorFarm
 
 
 class GraphServer:
@@ -11,12 +11,14 @@ class GraphServer:
     def __init__(self):
         rospy.init_node('graph_server', anonymous=True)
 
-        # self.environment_model = IndoorFarm.from_yaml(
-        #     'scripts/indoor_farm.yaml')
+        self.environment_model = IndoorFarm.from_yaml(
+            'indoor_farm.yaml')
 
         self.graph_serv = rospy.Service(
             'get_graph', GetGraph, self.get_graph_callback)
 
+        rospy.loginfo('Graph Server Started')
+        rospy.loginfo(self.environment_model.graph)
         rospy.spin()
 
     def get_graph_callback(self, req):
