@@ -21,6 +21,7 @@ services:
       - ~/.config/coc:/root/.config/coc
       - ~/.local/share/nvim/:/root/.local/share/nvim/
       - ~/.ssh:/root/.ssh
+      - ~/.gitconfig:/etc/gitconfig
     network_mode: "host"
     command: tail -f /dev/null
 

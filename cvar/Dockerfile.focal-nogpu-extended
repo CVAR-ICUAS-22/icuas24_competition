@@ -17,3 +17,5 @@ RUN pip3 install pynvim
 
 WORKDIR /root/
 RUN git config --global --add safe.directory '*'
+RUN apt install cppcheck -y
+RUN pip3 install cpplint
