@@ -1,7 +1,10 @@
 version: '3.3'
 services:
   icuas24_development:
-    image: icuas24_competition:focal-nogpu
+    image: icuas24_competition:focal-nogpu-extended
+    build: 
+      context: ..
+      dockerfile: ./cvar/Dockerfile.focal-nogpu-extended
     container_name: icuas24_focal_nogpu
     privileged: true
     environment:
@@ -12,6 +15,11 @@ services:
       - ~/.Xauthority:/root/.Xauthority
       - ./cvar_ws:/root/cvar_ws/
       - ..:/root/sim_ws/src/icuas24_competition/
+      - ~/.tmux:/root/.tmux
+      - ~/.tmux.conf:/root/.tmux.conf
+      - ~/.config/nvim:/root/.config/nvim
+      - ~/.config/coc:/root/.config/coc
+      - ~/.local/share/nvim/:/root/.local/share/nvim/
     network_mode: "host"
     command: tail -f /dev/null
 
