@@ -12,6 +12,22 @@ import yaml
 
 
 @dataclass
+class Node:
+    """Node: A class that represents a node in a graph.
+
+    Attributes:
+        uuid: The unique identifier of the node.
+        color: The color of the node.
+        position: The position of the node.
+        neightbours: The list of neighbours of the node.
+    """
+    uuid: int
+    color: str
+    position: tuple[float, float, float]
+    neighbors: list[Node] = None
+
+
+@dataclass
 class IndoorFarm:
     """IndoorFarm: A class that represents an indoor farm.
 
@@ -66,9 +82,10 @@ class IndoorFarm:
             )
 
     @property
-    def graph(self) -> list[tuple[float, float, float]]:
+    def graph(self) -> list[Node]:
         """graph: Returns a graph of the indoor farm."""
-        nodes: list[tuple[str, float, float, float]] = []
+        nodes: list[Node] = []
+        uuid = 0
         for row in range(self.row_count + 1):
             for col in range(self.col_count + 1):
                 y = self.y_offset - self.row_spacing/2 + row * \
@@ -78,17 +95,33 @@ class IndoorFarm:
                 x2 = self.x_offset + self.plant_bed_width/2 + col * \
                     (self.plant_bed_width + self.col_spacing)
 
-                nodes.append(('r', x, y, 0))
+                # Red dots are interconnection points
+                # nodes.append(Node('r', (x, y, 0)))
                 if col == 0:
                     x -= self.safety_distance
-                    nodes.append(('y', x, y, 0))
+                    # Yellow left safety points
+                    nodes.append(Node(uuid, 'y', (x, y, 0),
+                                      [uuid+1, uuid+self.row_count+2, uuid-self.row_count-2]))
+                    uuid += 1
+                if col < self.col_count:
+                    # Green points are the center of the plant beds
+                    nodes.append(Node(uuid, 'g', (x2, y, 0), [uuid-1, uuid+1]))
+                    uuid += 1
                 if col == self.col_count:
                     x += self.safety_distance
-                    nodes.append(('y', x, y, 0))
-                if col >= self.col_count:
-                    continue
-                nodes.append(('g', x2, y, 0))
+                    # Yellow right safety points
+                    nodes.append(Node(uuid, 'y', (x, y, 0),
+                                      [uuid-1, uuid+self.row_count+2, uuid-self.row_count-2]))
+                    uuid += 1
+
         return nodes
+
+
+def distance(node1: Node, node2: Node) -> float:
+    """distance: Returns the distance between two nodes."""
+    return ((node1.position[0] - node2.position[0])**2
+            + (node1.position[1] - node2.position[1])**2 +
+            (node1.position[2] - node2.position[2])**2)**0.5
 
 
 def draw_2d_indoor_farm(indoor_farm: IndoorFarm):
@@ -106,11 +139,26 @@ def draw_2d_indoor_farm(indoor_farm: IndoorFarm):
             ax.add_patch(rectangle)
 
     for node in indoor_farm.graph:
-        ax.scatter(node[1], node[2], color=node[0])
+        ax.scatter(node.position[0], node.position[1], color=node.color)
     ax.set_xlim([0, 30])
     ax.set_ylim([0, 30])
     plt.show()
 
 
 if __name__ == "__main__":
-    draw_2d_indoor_farm(IndoorFarm.from_yaml('scripts/indoor_farm.yaml'))
+    an_indoor_farm = IndoorFarm(
+        row_count=3,
+        col_count=3,
+        height_count=3,
+        plant_bed_width=6.0,
+        plant_bed_length=2.0,
+        plant_bed_height=0.8,
+        row_spacing=4.0,
+        col_spacing=1.5,
+        height_spacing=2.0,
+        x_offset=3.0,
+        y_offset=3.0,
+        z_offset=0,
+        safety_distance=1.5
+    )
+    draw_2d_indoor_farm(an_indoor_farm)

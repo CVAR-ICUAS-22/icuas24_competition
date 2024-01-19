@@ -1,8 +1,13 @@
+"""
+graph_server.py: Graph Server Node for the ICUAS 24 Competition.
+"""
+from itertools import chain
 import rospy
 from geometry_msgs.msg import Point
 from icuas_msgs.msg import Graph, Node
 from icuas_msgs.srv import GetGraph, GetGraphResponse
-from icuas24_competition.graph_gen import IndoorFarm
+import numpy as np
+from icuas24_competition.graph_gen import IndoorFarm, distance
 
 
 class GraphServer:
@@ -25,20 +30,23 @@ class GraphServer:
         """get_graph_callback: Returns the graph."""
         _ = req
         dummy_graph = Graph()
-        node0 = Node()
-        node0.uuid = 0
-        node0.position = Point(0, 0, 0)
-        node1 = Node()
-        node1.uuid = 1
-        node1.position = Point(1, 0, 0)
-        dummy_graph.nodes.append(node0)
-        dummy_graph.nodes.append(node1)
-        dummy_graph.distances.append(0)
-        dummy_graph.distances.append(0.5)
-        dummy_graph.distances.append(0.5)
-        dummy_graph.distances.append(0)
+        distances = np.identity(len(self.environment_model.graph))
+        distances[distances == 0] = np.inf
+        distances[distances == 1] = 0
+        for node in self.environment_model.graph:
+            dummy_node = Node()
+            dummy_node.uuid = node.uuid
+            dummy_node.position = Point(
+                node.position[0], node.position[1], node.position[2])
+            dummy_graph.nodes.append(dummy_node)
+            for neighbor in node.neighbors:
+                if neighbor in range(len(self.environment_model.graph)):
+                    distances[node.uuid][neighbor] = distance(
+                        node, self.environment_model.graph[neighbor])
+                    distances[neighbor][node.uuid] = distance(
+                        node, self.environment_model.graph[neighbor])
+        dummy_graph.distances = list(chain.from_iterable(distances.tolist()))
         return GetGraphResponse(True, dummy_graph)
-        # return GetGraphResponse(self.environment_model.graph)
 
 
 if __name__ == '__main__':
