@@ -20,6 +20,7 @@ services:
       - ~/.config/nvim:/root/.config/nvim
       - ~/.config/coc:/root/.config/coc
       - ~/.local/share/nvim/:/root/.local/share/nvim/
+      - ~/.ssh:/root/.ssh
     network_mode: "host"
     command: tail -f /dev/null
 
