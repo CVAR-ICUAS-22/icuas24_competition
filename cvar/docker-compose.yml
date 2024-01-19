@@ -1,0 +1,17 @@
+version: '3.3'
+services:
+  icuas24_development:
+    image: icuas24_competition:focal-nogpu
+    container_name: icuas24_focal_nogpu
+    privileged: true
+    environment:
+      DISPLAY: $DISPLAY
+      TERM: xterm-256color
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ~/.Xauthority:/root/.Xauthority
+      - ./cvar_ws:/root/cvar_ws/
+      - ..:/root/sim_ws/src/icuas24_competition/
+    network_mode: "host"
+    command: tail -f /dev/null
+
