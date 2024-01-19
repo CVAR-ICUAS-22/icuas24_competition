@@ -11,8 +11,8 @@ class GraphServer:
     def __init__(self):
         rospy.init_node('graph_server', anonymous=True)
 
-        self.environment_model = IndoorFarm.from_yaml(
-            'indoor_farm.yaml')
+        indoor_farm_file = rospy.get_param('~indoor_farm_file')
+        self.environment_model = IndoorFarm.from_yaml(indoor_farm_file)
 
         self.graph_serv = rospy.Service(
             'get_graph', GetGraph, self.get_graph_callback)

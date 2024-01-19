@@ -1,3 +1,5 @@
 <launch>
-    <node pkg="icuas24_competition" type="graph_server.py" name="graph_server"/>
+    <node pkg="icuas24_competition" type="graph_server.py" name="graph_server" output="screen">
+        <param name="indoor_farm_file" value="$(find icuas24_competition)/config/indoor_farm.yaml"/>
+    </node>
 </launch>
