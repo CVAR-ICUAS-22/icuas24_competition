@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 graph_server.py: Graph Server Node for the ICUAS 24 Competition.
 """

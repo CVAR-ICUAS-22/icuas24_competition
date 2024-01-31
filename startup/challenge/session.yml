@@ -95,4 +95,4 @@ windows:
       layout: even-vertical
       panes:
         - waitForRos; roslaunch icuas24_competition graph_server.launch
-        -
+        - waitForRos; roslaunch route_planning route_planning.launch namespace:=$UAV_NAMESPACE
