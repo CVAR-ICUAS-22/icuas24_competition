@@ -25,6 +25,7 @@ class Node:
     color: str
     position: tuple[float, float, float]
     neighbors: list[Node] = None
+    plant_ids: list[int] = None
 
 
 @dataclass
@@ -112,6 +113,17 @@ class IndoorFarm:
             ns.append(uuid-layer_node_size)
         return ns
 
+    def plant_ids(self, col: int, row: int, z: int) -> list[int]:
+        """plant_ids: Returns the plant ids of a node."""
+        ids = []
+        if row < self.row_count:
+            ids.append(1 + z + col * self.height_count + row *
+                       self.row_count * self.height_count)
+        if row > 0:
+            ids.append(1 + z + col * self.height_count + (row-1) *
+                       self.row_count * self.height_count)
+        return ids
+
     @property
     def graph(self) -> list[Node]:
         """graph: Returns a graph of the indoor farm."""
@@ -140,7 +152,8 @@ class IndoorFarm:
                     if col < self.col_count:
                         # Green points are the center of the plant beds
                         nodes.append(
-                            Node(uuid, 'g', (x, y2, height), self.neighbors(uuid, col, row, z)))
+                            Node(uuid, 'g', (x, y2, height), self.neighbors(uuid, col, row, z),
+                                 self.plant_ids(col, row, z)))
                         uuid += 1
                     if col == self.col_count:
                         y += self.safety_distance
@@ -198,8 +211,9 @@ def draw_3d_indoor_farm(indoor_farm: IndoorFarm):
     for node in indoor_farm.graph:
         ax.scatter(node.position[0], node.position[1],
                    node.position[2], color=node.color)
-        ax.text(node.position[0], node.position[1],
-                node.position[2], f'{node.uuid}')
+        if node.plant_ids:
+            ax.text(node.position[0], node.position[1],
+                    node.position[2], f'{node.plant_ids}')
 
         for node_id in node.neighbors:
             if node_id < 0 or node_id >= len(indoor_farm.graph):
