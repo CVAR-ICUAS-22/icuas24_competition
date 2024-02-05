@@ -122,17 +122,17 @@ class IndoorFarm:
                 (z+1) * self.height_spacing/2 + (z) * self.height_spacing
             for row in range(self.row_count + 1):
                 for col in range(self.col_count + 1):
-                    y = self.y_offset - self.row_spacing/2 + row * \
+                    x = self.y_offset - self.row_spacing/2 + row * \
                         (self.plant_bed_length + self.row_spacing)
-                    x = self.x_offset + col * self.plant_bed_width + \
+                    y = self.x_offset + col * self.plant_bed_width + \
                         (col-1/2) * self.col_spacing
-                    x2 = self.x_offset + self.plant_bed_width/2 + col * \
+                    y2 = self.x_offset + self.plant_bed_width/2 + col * \
                         (self.plant_bed_width + self.col_spacing)
 
                     # Red dots are interconnection points
                     # nodes.append(Node('r', (x, y, height)))
                     if col == 0:
-                        x -= self.safety_distance
+                        y -= self.safety_distance
                         # Yellow left safety points
                         nodes.append(
                             Node(uuid, 'y', (x, y, height), self.neighbors(uuid, col-1, row, z)))
@@ -140,10 +140,10 @@ class IndoorFarm:
                     if col < self.col_count:
                         # Green points are the center of the plant beds
                         nodes.append(
-                            Node(uuid, 'g', (x2, y, height), self.neighbors(uuid, col, row, z)))
+                            Node(uuid, 'g', (x, y2, height), self.neighbors(uuid, col, row, z)))
                         uuid += 1
                     if col == self.col_count:
-                        x += self.safety_distance
+                        y += self.safety_distance
                         # Yellow right safety points
                         nodes.append(
                             Node(uuid, 'y', (x, y, height), self.neighbors(uuid, col, row, z)))
