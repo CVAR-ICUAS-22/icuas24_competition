@@ -81,38 +81,73 @@ class IndoorFarm:
                 safety_distance=config['safety_distance']
             )
 
+    def neighbors(self, uuid: int, col: int, row: int, z: int) -> list[int]:
+        """neighbors: Returns the neighbors of a node."""
+        layer_node_size = (self.row_count + 2) * (self.col_count + 1)
+        ns = []
+        if col == -1:
+            ns.append(uuid+1)
+        if -1 < col < self.col_count:
+            ns.append(uuid-1)
+            ns.append(uuid+1)
+        if col == self.col_count:
+            ns.append(uuid-1)
+
+        # Row connected in first and last column only
+        if col in (-1, self.col_count):
+            if row == 0:
+                ns.append(uuid+self.row_count+2)
+            if 0 < row < self.row_count:
+                ns.append(uuid-self.row_count-2)
+                ns.append(uuid+self.row_count+2)
+            if row == self.row_count:
+                ns.append(uuid-self.row_count-2)
+
+        if z == 0:
+            ns.append(uuid+layer_node_size)
+        if 0 < z < self.height_count:
+            ns.append(uuid-layer_node_size)
+            ns.append(uuid+layer_node_size)
+        if z == self.height_count:
+            ns.append(uuid-layer_node_size)
+        return ns
+
     @property
     def graph(self) -> list[Node]:
         """graph: Returns a graph of the indoor farm."""
         nodes: list[Node] = []
         uuid = 0
-        for row in range(self.row_count + 1):
-            for col in range(self.col_count + 1):
-                y = self.y_offset - self.row_spacing/2 + row * \
-                    (self.plant_bed_length + self.row_spacing)
-                x = self.x_offset + col * self.plant_bed_width + \
-                    (col-1/2) * self.col_spacing
-                x2 = self.x_offset + self.plant_bed_width/2 + col * \
-                    (self.plant_bed_width + self.col_spacing)
+        for z in range(self.height_count):
+            height = self.z_offset + z * self.plant_bed_height + \
+                (z+1) * self.height_spacing/2 + (z) * self.height_spacing
+            for row in range(self.row_count + 1):
+                for col in range(self.col_count + 1):
+                    y = self.y_offset - self.row_spacing/2 + row * \
+                        (self.plant_bed_length + self.row_spacing)
+                    x = self.x_offset + col * self.plant_bed_width + \
+                        (col-1/2) * self.col_spacing
+                    x2 = self.x_offset + self.plant_bed_width/2 + col * \
+                        (self.plant_bed_width + self.col_spacing)
 
-                # Red dots are interconnection points
-                # nodes.append(Node('r', (x, y, 0)))
-                if col == 0:
-                    x -= self.safety_distance
-                    # Yellow left safety points
-                    nodes.append(Node(uuid, 'y', (x, y, 0),
-                                      [uuid+1, uuid+self.row_count+2, uuid-self.row_count-2]))
-                    uuid += 1
-                if col < self.col_count:
-                    # Green points are the center of the plant beds
-                    nodes.append(Node(uuid, 'g', (x2, y, 0), [uuid-1, uuid+1]))
-                    uuid += 1
-                if col == self.col_count:
-                    x += self.safety_distance
-                    # Yellow right safety points
-                    nodes.append(Node(uuid, 'y', (x, y, 0),
-                                      [uuid-1, uuid+self.row_count+2, uuid-self.row_count-2]))
-                    uuid += 1
+                    # Red dots are interconnection points
+                    # nodes.append(Node('r', (x, y, height)))
+                    if col == 0:
+                        x -= self.safety_distance
+                        # Yellow left safety points
+                        nodes.append(
+                            Node(uuid, 'y', (x, y, height), self.neighbors(uuid, col-1, row, z)))
+                        uuid += 1
+                    if col < self.col_count:
+                        # Green points are the center of the plant beds
+                        nodes.append(
+                            Node(uuid, 'g', (x2, y, height), self.neighbors(uuid, col, row, z)))
+                        uuid += 1
+                    if col == self.col_count:
+                        x += self.safety_distance
+                        # Yellow right safety points
+                        nodes.append(
+                            Node(uuid, 'y', (x, y, height), self.neighbors(uuid, col, row, z)))
+                        uuid += 1
 
         return nodes
 
@@ -145,6 +180,45 @@ def draw_2d_indoor_farm(indoor_farm: IndoorFarm):
     plt.show()
 
 
+def draw_3d_indoor_farm(indoor_farm: IndoorFarm):
+    """draw_indoor_farm: Draws a plot of the indoor farm."""
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    for row in range(indoor_farm.row_count):
+        for col in range(indoor_farm.col_count):
+            x = indoor_farm.x_offset + col * \
+                (indoor_farm.plant_bed_width + indoor_farm.col_spacing)
+            y = indoor_farm.y_offset + row * \
+                (indoor_farm.plant_bed_length + indoor_farm.row_spacing)
+            z = 0
+            # ax.bar3d(x, y, z, indoor_farm.plant_bed_width,
+            #          indoor_farm.plant_bed_length, indoor_farm.plant_bed_height,
+            #          color='b', alpha=0.8)
+
+    for node in indoor_farm.graph:
+        ax.scatter(node.position[0], node.position[1],
+                   node.position[2], color=node.color)
+        ax.text(node.position[0], node.position[1],
+                node.position[2], f'{node.uuid}')
+
+        for node_id in node.neighbors:
+            if node_id < 0 or node_id >= len(indoor_farm.graph):
+                continue
+            node_n = indoor_farm.graph[node_id]
+            ax.plot([node.position[0], node_n.position[0]],
+                    [node.position[1], node_n.position[1]],
+                    [node.position[2], node_n.position[2]], color='b')
+
+    # Set labels and title
+    ax.set_xlabel('X Label')
+    ax.set_ylabel('Y Label')
+    ax.set_zlabel('Z Label')
+    ax.set_title('Indoor Farm')
+    ax.set_xlim([0, 30])
+    ax.set_ylim([0, 30])
+    plt.show()
+
+
 if __name__ == "__main__":
     an_indoor_farm = IndoorFarm(
         row_count=3,
@@ -161,4 +235,6 @@ if __name__ == "__main__":
         z_offset=0,
         safety_distance=1.5
     )
-    draw_2d_indoor_farm(an_indoor_farm)
+    # draw_2d_indoor_farm(an_indoor_farm)
+
+    draw_3d_indoor_farm(an_indoor_farm)
