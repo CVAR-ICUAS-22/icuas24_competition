@@ -12,6 +12,18 @@ import yaml
 
 
 @dataclass
+class PlantBed:
+    """PlantBed: A class that represents a plant bed.
+
+    Attributes:
+        id: The unique identifier of the plant bed.
+        yaw: The yaw of the plant bed.
+    """
+    id: int
+    yaw: float
+
+
+@dataclass
 class Node:
     """Node: A class that represents a node in a graph.
 
@@ -25,7 +37,7 @@ class Node:
     color: str
     position: tuple[float, float, float]
     neighbors: list[Node] = None
-    plant_ids: list[int] = None
+    plant_ids: list[PlantBed] = None
 
 
 @dataclass
@@ -113,15 +125,17 @@ class IndoorFarm:
             ns.append(uuid-layer_node_size)
         return ns
 
-    def plant_ids(self, col: int, row: int, z: int) -> list[int]:
+    def plant_ids(self, col: int, row: int, z: int) -> list[PlantBed]:
         """plant_ids: Returns the plant ids of a node."""
         ids = []
         if row < self.row_count:
-            ids.append(1 + z + col * self.height_count + row *
-                       self.row_count * self.height_count)
+            pid = 1 + z + col * self.height_count + \
+                row * self.row_count * self.height_count
+            ids.append(PlantBed(pid, 0.0))
         if row > 0:
-            ids.append(1 + z + col * self.height_count + (row-1) *
-                       self.row_count * self.height_count)
+            pid = 1 + z + col * self.height_count + \
+                (row-1) * self.row_count * self.height_count
+            ids.append(PlantBed(pid, 180.0))
         return ids
 
     @property

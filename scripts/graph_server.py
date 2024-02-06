@@ -5,12 +5,13 @@ graph_server.py: Graph Server Node for the ICUAS 24 Competition.
 from itertools import chain
 import rospy
 from geometry_msgs.msg import Point
-from icuas_msgs.msg import Graph, Node
+from icuas_msgs.msg import Graph, Node, PlantBed
 from icuas_msgs.srv import GetGraph, GetGraphResponse
 import numpy as np
 from icuas24_competition.graph_gen import IndoorFarm, distance
 
 
+# TODO: add plant_ids to each node
 class GraphServer:
     """Graph Server"""
 
@@ -35,11 +36,13 @@ class GraphServer:
         distances[distances == 0] = np.inf
         distances[distances == 1] = 0
         for node in self.environment_model.graph:
-            dummy_node = Node()
-            dummy_node.uuid = node.uuid
-            dummy_node.position = Point(
+            a_node = Node()
+            a_node.uuid = node.uuid
+            a_node.position = Point(
                 node.position[0], node.position[1], node.position[2])
-            dummy_graph.nodes.append(dummy_node)
+            for plant in node.plant_ids:
+                a_node.plant_ids.append(PlantBed(id=plant.id, yaw=plant.yaw))
+            dummy_graph.nodes.append(a_node)
             for neighbor in node.neighbors:
                 if neighbor in range(len(self.environment_model.graph)):
                     distances[node.uuid][neighbor] = distance(
