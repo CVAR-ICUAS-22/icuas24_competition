@@ -5,7 +5,7 @@ graph_gen.py: Generates a graph of the environment given a set of parameters.
 """
 
 from __future__ import annotations
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from matplotlib import pyplot as plt
 from matplotlib.patches import Rectangle
 import yaml
@@ -36,8 +36,8 @@ class Node:
     uuid: int
     color: str
     position: tuple[float, float, float]
-    neighbors: list[Node] = None
-    plant_ids: list[PlantBed] = None
+    neighbors: list[Node] = field(default_factory=list)
+    plant_ids: list[PlantBed] = field(default_factory=list)
 
 
 @dataclass
