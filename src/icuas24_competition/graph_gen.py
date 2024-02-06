@@ -144,8 +144,8 @@ class IndoorFarm:
         nodes: list[Node] = []
         uuid = 0
         for z in range(self.height_count):
-            height = self.z_offset + z * self.plant_bed_height + \
-                (z+1) * self.height_spacing/2 + (z) * self.height_spacing
+            height = self.z_offset + (z+1) * self.plant_bed_height + \
+                (z+1) * self.height_spacing/2 + z * self.height_spacing/2
             for row in range(self.row_count + 1):
                 for col in range(self.col_count + 1):
                     x = self.y_offset - self.row_spacing/2 + row * \
