@@ -98,4 +98,10 @@ windows:
         - waitForRos; roslaunch icuas_route_planning route_planning.launch namespace:=$UAV_NAMESPACE
         - waitForRos; roslaunch icuas_mission_planner icuas_mission_planner.launch namespace:=$UAV_NAMESPACE
         - waitForRos; roslaunch icuas24_vision icuas_vision_stack.launch namespace:=$UAV_NAMESPACE
- 
+  - debug:
+      panes:
+        - |
+          waitForRos
+          waitForSimulation
+          sleep 10
+          rostopic echo /fruit_count
