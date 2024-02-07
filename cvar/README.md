@@ -30,7 +30,7 @@ cd cvar
 
 Run docker:
 ```
-docker compose up -dld
+docker compose up -d
 ```
 
 ## Exec docker

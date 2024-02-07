@@ -10,11 +10,6 @@ repositories:
     url: git@github.com:CVAR-ICUAS-22/icuas_msgs.git
     version: icuas24
 
-  cvar_ws/src/icuas2022_speed_controller:
-    type: git 
-    url: git@github.com:CVAR-ICUAS-22/icuas2022_speed_controller.git
-    version: icuas24
-
   cvar_ws/src/icuas_route_planning:
     type: git 
     url: git@github.com:CVAR-ICUAS-22/icuas_route_planning.git

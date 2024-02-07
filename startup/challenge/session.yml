@@ -92,15 +92,10 @@ windows:
         - waitForRos; roslaunch uav_ros_tracker topp_tracker.launch 
           tracker_config:=custom_config/topp_config_custom.yaml
   - solution:
-      layout: even-vertical
+      layout: tiled
       panes:
-        - waitForRos; roslaunch icuas_mission_planner icuas_mission_planner.launch
-          namespace:=$UAV_NAMESPACE
-        - waitForRos; roslaunch icuas_path_planner icuas_path_planner.launch
-          namespace:=$UAV_NAMESPACE
-        - waitForRos; roslaunch basic_speed_controller basic_speed_controller.launch
-          namespace:=$UAV_NAMESPACE
-          path_facing:=false
-          new_pid:=true
         - waitForRos; roslaunch icuas24_competition graph_server.launch
         - waitForRos; roslaunch icuas_route_planning route_planning.launch namespace:=$UAV_NAMESPACE
+        - waitForRos; roslaunch icuas_mission_planner icuas_mission_planner.launch namespace:=$UAV_NAMESPACE
+        - waitForRos; roslaunch icuas24_vision icuas_vision_stack.launch namespace:=$UAV_NAMESPACE
+ 
