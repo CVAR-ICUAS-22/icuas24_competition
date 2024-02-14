@@ -92,7 +92,8 @@ class IndoorFarm:
                 x_offset=config['x_offset'],
                 y_offset=config['y_offset'],
                 z_offset=config['z_offset'],
-                safety_distance=config['safety_distance']
+                safety_distance=config['safety_distance'],
+                enable_diagonals=config['enable_diagonals']
             )
 
     def neighbors(self, uuid: int, col: int, row: int, z: int) -> list[int]:
