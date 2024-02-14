@@ -72,6 +72,7 @@ class IndoorFarm:
     y_offset: float
     z_offset: float
     safety_distance: float = 0.5
+    enable_diagonals: bool = False
 
     @classmethod
     def from_yaml(cls, filename: str):
@@ -100,11 +101,22 @@ class IndoorFarm:
         ns = []
         if col == -1:
             ns.append(uuid+1)
+            if self.enable_diagonals:
+                ns.append(uuid+layer_node_size+1)
+                ns.append(uuid-layer_node_size+1)
         if -1 < col < self.col_count:
             ns.append(uuid-1)
             ns.append(uuid+1)
+            if self.enable_diagonals:
+                ns.append(uuid+layer_node_size+1)
+                ns.append(uuid-layer_node_size+1)
+                ns.append(uuid+layer_node_size-1)
+                ns.append(uuid-layer_node_size-1)
         if col == self.col_count:
             ns.append(uuid-1)
+            if self.enable_diagonals:
+                ns.append(uuid+layer_node_size-1)
+                ns.append(uuid-layer_node_size-1)
 
         # Row connected in first and last column only
         if col in (-1, self.col_count):
@@ -261,7 +273,8 @@ if __name__ == "__main__":
         x_offset=3.0,
         y_offset=3.0,
         z_offset=0,
-        safety_distance=1.5
+        safety_distance=1.5,
+        enable_diagonals=True
     )
     # draw_2d_indoor_farm(an_indoor_farm)
 
