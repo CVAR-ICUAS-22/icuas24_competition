@@ -11,4 +11,4 @@ x_offset: 3.0
 y_offset: 3.0
 z_offset: 0.0
 safety_distance: 1.5
-enable_diagonals: False
+enable_diagonals: True
