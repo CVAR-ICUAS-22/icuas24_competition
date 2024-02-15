@@ -2,10 +2,10 @@ version: '3.3'
 services:
   icuas24_development:
     image: icuas24_competition:focal-nogpu-extended
-    build: 
+    build:
       context: ..
       dockerfile: ./cvar/Dockerfile.focal-nogpu-extended
-    container_name: icuas24_focal_nogpu
+    container_name: icuas24_competition
     privileged: true
     environment:
       DISPLAY: $DISPLAY
@@ -24,4 +24,3 @@ services:
       - ~/.gitconfig:/etc/gitconfig
     network_mode: "host"
     command: tail -f /dev/null
-

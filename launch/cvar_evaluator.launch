@@ -1,0 +1,6 @@
+<launch>
+  <arg name="namespace" />
+  <group ns="$(arg namespace)">
+  <node pkg="icuas24_competition" type="cvar_evaluator.py" name="cvar_evaluator" output="screen"></node>
+  </group>
+</launch>
