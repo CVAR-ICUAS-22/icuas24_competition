@@ -48,6 +48,8 @@ class GraphServer:
                 a_node.plant_ids.append(PlantBed(id=plant.id, yaw=plant.yaw))
             dummy_graph.nodes.append(a_node)
             for neighbor in node.neighbors:
+                if neighbor == node.uuid:
+                    continue
                 if neighbor in range(len(self.environment_model.graph)):
                     distances[node.uuid][neighbor] = distance(
                         node, self.environment_model.graph[neighbor])

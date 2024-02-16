@@ -73,6 +73,7 @@ class IndoorFarm:
     z_offset: float
     safety_distance: float = 0.5
     enable_diagonals: bool = False
+    full_connected_row: bool = False
 
     @classmethod
     def from_yaml(cls, filename: str):
@@ -93,7 +94,8 @@ class IndoorFarm:
                 y_offset=config['y_offset'],
                 z_offset=config['z_offset'],
                 safety_distance=config['safety_distance'],
-                enable_diagonals=config['enable_diagonals']
+                enable_diagonals=config['enable_diagonals'],
+                full_connected_row=config['full_connected_row']
             )
 
     def neighbors(self, uuid: int, col: int, row: int, z: int) -> list[int]:
@@ -118,6 +120,37 @@ class IndoorFarm:
             if self.enable_diagonals:
                 ns.append(uuid+layer_node_size-1)
                 ns.append(uuid-layer_node_size-1)
+
+        # Row connected in first and last column only
+        if col in (-1, self.col_count):
+            if row == 0:
+                ns.append(uuid+self.row_count+2)
+            if 0 < row < self.row_count:
+                ns.append(uuid-self.row_count-2)
+                ns.append(uuid+self.row_count+2)
+            if row == self.row_count:
+                ns.append(uuid-self.row_count-2)
+
+        if z == 0:
+            ns.append(uuid+layer_node_size)
+        if 0 < z < self.height_count:
+            ns.append(uuid-layer_node_size)
+            ns.append(uuid+layer_node_size)
+        if z == self.height_count:
+            ns.append(uuid-layer_node_size)
+        return ns
+
+    def neighbors_full_connected(self, uuid: int, col: int, row: int, z: int) -> list[int]:
+        """neighbors: Returns the neighbors of a node."""
+        layer_node_size = (self.row_count + 2) * (self.col_count + 1)
+
+        # FIXME: not to be hardcoded
+        rows = [[0, 1, 2, 3, 4, 20, 21, 22, 23, 24, 40, 41, 42, 43, 44],
+                [5, 6, 7, 8, 9, 25, 26, 27, 28, 29, 45, 46, 47, 48, 49],
+                [10, 11, 12, 13, 14, 30, 31, 32, 33, 34, 50, 51, 52, 53, 54],
+                [15, 16, 17, 18, 19, 35, 36, 37, 38, 39, 55, 56, 57, 58, 59]]
+        # ns = []
+        ns = rows[row]
 
         # Row connected in first and last column only
         if col in (-1, self.col_count):
@@ -172,21 +205,33 @@ class IndoorFarm:
                     # nodes.append(Node('r', (x, y, height)))
                     if col == 0:
                         y -= self.safety_distance
+                        if self.full_connected_row:
+                            neigh = self.neighbors_full_connected(
+                                uuid, col-1, row, z)
+                        else:
+                            neigh = self.neighbors(uuid, col-1, row, z)
                         # Yellow left safety points
-                        nodes.append(
-                            Node(uuid, 'y', (x, y, height), self.neighbors(uuid, col-1, row, z)))
+                        nodes.append(Node(uuid, 'y', (x, y, height), neigh))
                         uuid += 1
                     if col < self.col_count:
+                        if self.full_connected_row:
+                            neigh = self.neighbors_full_connected(
+                                uuid, col, row, z)
+                        else:
+                            neigh = self.neighbors(uuid, col, row, z)
                         # Green points are the center of the plant beds
                         nodes.append(
-                            Node(uuid, 'g', (x, y2, height), self.neighbors(uuid, col, row, z),
-                                 self.plant_ids(col, row, z)))
+                            Node(uuid, 'g', (x, y2, height), neigh, self.plant_ids(col, row, z)))
                         uuid += 1
                     if col == self.col_count:
                         y += self.safety_distance
+                        if self.full_connected_row:
+                            neigh = self.neighbors_full_connected(
+                                uuid, col, row, z)
+                        else:
+                            neigh = self.neighbors(uuid, col, row, z)
                         # Yellow right safety points
-                        nodes.append(
-                            Node(uuid, 'y', (x, y, height), self.neighbors(uuid, col, row, z)))
+                        nodes.append(Node(uuid, 'y', (x, y, height), neigh))
                         uuid += 1
 
         return nodes
@@ -220,7 +265,7 @@ def draw_2d_indoor_farm(indoor_farm: IndoorFarm):
     plt.show()
 
 
-def draw_3d_indoor_farm(indoor_farm: IndoorFarm):
+def draw_3d_indoor_farm(indoor_farm: IndoorFarm, verbose: bool = True):
     """draw_indoor_farm: Draws a plot of the indoor farm."""
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
@@ -238,7 +283,7 @@ def draw_3d_indoor_farm(indoor_farm: IndoorFarm):
     for node in indoor_farm.graph:
         ax.scatter(node.position[0], node.position[1],
                    node.position[2], color=node.color)
-        if node.plant_ids:
+        if verbose and node.plant_ids:
             ax.text(node.position[0], node.position[1],
                     node.position[2], f'{node.plant_ids}')
 
@@ -275,8 +320,9 @@ if __name__ == "__main__":
         y_offset=3.0,
         z_offset=0,
         safety_distance=1.5,
-        enable_diagonals=True
+        enable_diagonals=True,
+        full_connected_row=True
     )
     # draw_2d_indoor_farm(an_indoor_farm)
 
-    draw_3d_indoor_farm(an_indoor_farm)
+    draw_3d_indoor_farm(an_indoor_farm, False)
