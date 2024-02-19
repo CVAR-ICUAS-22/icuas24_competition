@@ -64,7 +64,7 @@ class GraphServer:
         marker = Marker()
         marker.header.frame_id = "world"
         marker.header.stamp = rospy.Time.now()
-        marker.ns = "graph"
+        marker.ns = "nodes"
         marker.id = 0
         marker.type = Marker.SPHERE_LIST
         marker.action = Marker.ADD
@@ -85,7 +85,7 @@ class GraphServer:
         path = Marker()
         path.header.frame_id = "world"
         path.header.stamp = rospy.Time.now()
-        path.ns = "graph"
+        path.ns = "routes"
         path.id = 1
         path.type = Marker.LINE_LIST
         path.action = Marker.ADD
@@ -110,7 +110,7 @@ class GraphServer:
         farm = Marker()
         farm.header.frame_id = "world"
         farm.header.stamp = rospy.Time.now()
-        farm.ns = "graph"
+        farm.ns = "farm"
         farm.id = 2
         farm.type = Marker.MESH_RESOURCE
         farm.action = Marker.ADD
