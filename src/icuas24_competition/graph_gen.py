@@ -153,14 +153,13 @@ class IndoorFarm:
         ns = rows[row]
 
         # Row connected in first and last column only
+        cols = [[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55],
+                [],
+                [],
+                [],
+                [4, 9, 14, 19, 24, 29, 34, 39, 44, 49, 54, 59]]
         if col in (-1, self.col_count):
-            if row == 0:
-                ns.append(uuid+self.row_count+2)
-            if 0 < row < self.row_count:
-                ns.append(uuid-self.row_count-2)
-                ns.append(uuid+self.row_count+2)
-            if row == self.row_count:
-                ns.append(uuid-self.row_count-2)
+            ns = cols[col+1]
 
         if z == 0:
             ns.append(uuid+layer_node_size)
@@ -283,9 +282,9 @@ def draw_3d_indoor_farm(indoor_farm: IndoorFarm, verbose: bool = True):
     for node in indoor_farm.graph:
         ax.scatter(node.position[0], node.position[1],
                    node.position[2], color=node.color)
-        if verbose and node.plant_ids:
+        if verbose:
             ax.text(node.position[0], node.position[1],
-                    node.position[2], f'{node.plant_ids}')
+                    node.position[2], f'{node.uuid}')
 
         for node_id in node.neighbors:
             if node_id < 0 or node_id >= len(indoor_farm.graph):
@@ -325,4 +324,4 @@ if __name__ == "__main__":
     )
     # draw_2d_indoor_farm(an_indoor_farm)
 
-    draw_3d_indoor_farm(an_indoor_farm, False)
+    draw_3d_indoor_farm(an_indoor_farm, True)
